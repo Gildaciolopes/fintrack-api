@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fintrack-api
+    ports:
+      - "8080:8080"
+    environment:
+      - ENV=production
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      - fintrack-network
+
+networks:
+  fintrack-network:
+    driver: bridge
