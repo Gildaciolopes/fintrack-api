@@ -19,10 +19,10 @@ func NewDashboardRepository(db *sql.DB) *DashboardRepository {
 func (r *DashboardRepository) GetStats(userID uuid.UUID, startDate, endDate time.Time) (*models.DashboardStats, error) {
 	query := `
 		SELECT 
-			COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0)::numeric as total_income,
-			COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0)::numeric as total_expenses
+			COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) as total_income,
+			COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) as total_expenses
 		FROM transactions
-		WHERE user_id = $1 AND date >= $2::date AND date <= $3::date
+		WHERE user_id = $1 AND date >= $2 AND date <= $3
 	`
 
 	var totalIncome, totalExpenses float64
@@ -49,14 +49,14 @@ func (r *DashboardRepository) GetExpensesByCategory(userID uuid.UUID, startDate,
 	query := `
 		SELECT 
 			COALESCE(c.name, 'Uncategorized') as category,
-			SUM(t.amount)::numeric as amount,
+			SUM(t.amount) as amount,
 			COALESCE(c.color, '#6366f1') as color
 		FROM transactions t
 		LEFT JOIN categories c ON t.category_id = c.id
 		WHERE t.user_id = $1 
 			AND t.type = 'expense'
-			AND t.date >= $2::date 
-			AND t.date <= $3::date
+			AND t.date >= $2 
+			AND t.date <= $3
 		GROUP BY c.name, c.color
 		ORDER BY amount DESC
 	`
@@ -93,11 +93,11 @@ func (r *DashboardRepository) GetMonthlyData(userID uuid.UUID, months int) ([]mo
 	query := `
 		SELECT 
 			TO_CHAR(date, 'YYYY-MM') as month,
-			COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0)::numeric as income,
-			COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0)::numeric as expenses
+			COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) as income,
+			COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) as expenses
 		FROM transactions
 		WHERE user_id = $1 
-			AND date >= DATE_TRUNC('month', CURRENT_DATE) - ($2 - 1) * INTERVAL '1 month'
+			AND date >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '1 month' * ($2 - 1)
 		GROUP BY TO_CHAR(date, 'YYYY-MM')
 		ORDER BY month ASC
 	`
@@ -124,12 +124,12 @@ func (r *DashboardRepository) GetDailyData(userID uuid.UUID, startDate, endDate 
 	query := `
 		SELECT 
 			TO_CHAR(date, 'YYYY-MM-DD') as date_str,
-			COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0)::numeric as income,
-			COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0)::numeric as expenses
+			COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) as income,
+			COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) as expenses
 		FROM transactions
 		WHERE user_id = $1 
-			AND date >= $2::date 
-			AND date <= $3::date
+			AND date >= $2 
+			AND date <= $3
 		GROUP BY date, TO_CHAR(date, 'YYYY-MM-DD')
 		ORDER BY date ASC
 	`
