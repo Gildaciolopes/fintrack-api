@@ -33,6 +33,7 @@ type DatabaseConfig struct {
 	Password string
 	DBName   string
 	SSLMode  string
+	URL      string
 }
  
 type SupabaseConfig struct {
@@ -70,6 +71,7 @@ func Load() (*Config, error) {
 			Password: getEnv("DB_PASSWORD", ""),
 			DBName:   getEnv("DB_NAME", "postgres"),
 			SSLMode:  getEnv("DB_SSLMODE", "disable"),
+			URL:      getEnv("DATABASE_URL", ""),
 		},
 		Supabase: SupabaseConfig{
 			URL:            getEnv("SUPABASE_URL", ""),
@@ -89,15 +91,20 @@ func Load() (*Config, error) {
 }
  
 func (c *Config) ConnectDB() (*sql.DB, error) {
-	dsn := fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-		c.Database.Host,
-		c.Database.Port,
-		c.Database.User,
-		c.Database.Password,
-		c.Database.DBName,
-		c.Database.SSLMode,
-	)
+	var dsn string
+	if c.Database.URL != "" {
+		dsn = c.Database.URL
+	} else {
+		dsn = fmt.Sprintf(
+			"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+			c.Database.Host,
+			c.Database.Port,
+			c.Database.User,
+			c.Database.Password,
+			c.Database.DBName,
+			c.Database.SSLMode,
+		)
+	}
 
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
