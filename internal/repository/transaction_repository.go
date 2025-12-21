@@ -293,15 +293,9 @@ func (r *TransactionRepository) GetRecentTransactions(userID uuid.UUID, limit in
 		SELECT 
 			t.id, t.user_id, t.category_id, t.type, t.amount, t.description, t.date, 
 			t.created_at, t.updated_at,
-			COALESCE(c.id::text, '') as cat_id,
-			COALESCE(c.user_id::text, '') as cat_user_id,
-			COALESCE(c.name, '') as cat_name,
-			COALESCE(c.type, '') as cat_type,
-			COALESCE(c.color, '') as cat_color,
-			COALESCE(c.icon, '') as cat_icon,
-			COALESCE(c.created_at, '1970-01-01'::timestamp) as cat_created_at
+			c.id, c.user_id, c.name, c.type, c.color, c.icon, c.created_at
 		FROM transactions t
-		LEFT JOIN categories c ON t.category_id = c.id AND c.user_id = t.user_id
+		LEFT JOIN categories c ON t.category_id = c.id
 		WHERE t.user_id = $1
 		ORDER BY t.date DESC, t.created_at DESC
 		LIMIT $2
@@ -317,9 +311,9 @@ func (r *TransactionRepository) GetRecentTransactions(userID uuid.UUID, limit in
 	for rows.Next() {
 		var transaction models.Transaction
 		var category models.Category
-		var categoryID, categoryUserID string
-		var categoryName, categoryType, categoryColor, categoryIcon string
-		var categoryCreatedAt time.Time
+		var categoryID, categoryUserID sql.NullString
+		var categoryName, categoryType, categoryColor, categoryIcon sql.NullString
+		var categoryCreatedAt sql.NullTime
 
 		if err := rows.Scan(
 			&transaction.ID,
@@ -342,16 +336,16 @@ func (r *TransactionRepository) GetRecentTransactions(userID uuid.UUID, limit in
 			return nil, err
 		}
 
-		if categoryID != "" {
-			categoryUUID, _ := uuid.Parse(categoryID)
-			categoryUserUUID, _ := uuid.Parse(categoryUserID)
+		if categoryID.Valid {
+			categoryUUID, _ := uuid.Parse(categoryID.String)
+			categoryUserUUID, _ := uuid.Parse(categoryUserID.String)
 			category.ID = categoryUUID
 			category.UserID = categoryUserUUID
-			category.Name = categoryName
-			category.Type = categoryType
-			category.Color = categoryColor
-			category.Icon = categoryIcon
-			category.CreatedAt = categoryCreatedAt
+			category.Name = categoryName.String
+			category.Type = categoryType.String
+			category.Color = categoryColor.String
+			category.Icon = categoryIcon.String
+			category.CreatedAt = categoryCreatedAt.Time
 			transaction.Category = &category
 		}
 
