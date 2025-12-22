@@ -110,7 +110,7 @@ func (r *TransactionRepository) GetAll(userID uuid.UUID, filters models.Transact
 		filters.Limit = 20
 	}
 
-	whereClause := "t.user_id = $1"
+	whereClause := "t.user_id = $1::uuid"
 	args := []interface{}{userID}
 	argPos := 2
 
@@ -121,19 +121,19 @@ func (r *TransactionRepository) GetAll(userID uuid.UUID, filters models.Transact
 	}
 
 	if filters.CategoryID != nil {
-		whereClause += fmt.Sprintf(" AND t.category_id = $%d", argPos)
+		whereClause += fmt.Sprintf(" AND t.category_id = $%d::uuid", argPos)
 		args = append(args, *filters.CategoryID)
 		argPos++
 	}
 
 	if filters.StartDate != nil {
-		whereClause += fmt.Sprintf(" AND t.date >= $%d", argPos)
+		whereClause += fmt.Sprintf(" AND t.date >= $%d::date", argPos)
 		args = append(args, *filters.StartDate)
 		argPos++
 	}
 
 	if filters.EndDate != nil {
-		whereClause += fmt.Sprintf(" AND t.date <= $%d", argPos)
+		whereClause += fmt.Sprintf(" AND t.date <= $%d::date", argPos)
 		args = append(args, *filters.EndDate)
 		argPos++
 	}
@@ -166,7 +166,7 @@ func (r *TransactionRepository) GetAll(userID uuid.UUID, filters models.Transact
 		LEFT JOIN categories c ON t.category_id = c.id
 		WHERE %s
 		ORDER BY t.date DESC, t.created_at DESC
-		LIMIT $%d OFFSET $%d
+		LIMIT $%d::int OFFSET $%d::int
 	`, whereClause, argPos, argPos+1)
 
 	args = append(args, filters.Limit, offset)
