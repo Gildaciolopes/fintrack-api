@@ -301,6 +301,7 @@ func (r *TransactionRepository) GetRecentTransactions(userID uuid.UUID, limit in
 		LIMIT $2
 	`
 
+	fmt.Printf("[DEBUG GetRecentTransactions] userID: %s, limit: %d\n", userID, limit)
 	rows, err := r.db.Query(query, userID, limit)
 	if err != nil {
 		return nil, err

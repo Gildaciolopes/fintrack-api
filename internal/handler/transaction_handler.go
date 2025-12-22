@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/Gildaciolopes/fintrack-backend/internal/middleware"
@@ -38,6 +39,8 @@ func (h *TransactionHandler) Create(c *gin.Context) {
 		return
 	}
 
+	fmt.Printf("[DEBUG Create Transaction] userID: %s, type: %s, amount: %f, categoryID: %v\n", userID, req.Type, req.Amount, req.CategoryID)
+
 	transaction := &models.Transaction{
 		UserID:      userID,
 		CategoryID:  req.CategoryID,
@@ -48,6 +51,7 @@ func (h *TransactionHandler) Create(c *gin.Context) {
 	}
 
 	if err := h.repo.Create(transaction); err != nil {
+		fmt.Printf("[ERROR Create Transaction] %v\n", err)
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
 			Success: false,
 			Error:   "Failed to create transaction",

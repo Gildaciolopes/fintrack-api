@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/Gildaciolopes/fintrack-backend/internal/models"
@@ -25,6 +26,7 @@ func (r *DashboardRepository) GetStats(userID uuid.UUID, startDate, endDate time
 		WHERE user_id = $1 AND date >= $2 AND date <= $3
 	`
 
+	fmt.Printf("[DEBUG GetStats] userID: %s, startDate: %s, endDate: %s\n", userID, startDate.Format("2006-01-02"), endDate.Format("2006-01-02"))
 	var totalIncome, totalExpenses float64
 	err := r.db.QueryRow(query, userID, startDate.Format("2006-01-02"), endDate.Format("2006-01-02")).Scan(&totalIncome, &totalExpenses)
 	if err != nil {
