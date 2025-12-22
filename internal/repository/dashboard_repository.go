@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"fmt"
 	"time"
 
 	"github.com/Gildaciolopes/fintrack-backend/internal/models"
@@ -23,12 +22,11 @@ func (r *DashboardRepository) GetStats(userID uuid.UUID, startDate, endDate time
 			COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) as total_income,
 			COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) as total_expenses
 		FROM transactions
-		WHERE user_id = $1 AND date >= $2 AND date <= $3
+		WHERE user_id = $1::uuid AND date >= $2::date AND date <= $3::date
 	`
 
-	fmt.Printf("[DEBUG GetStats] userID: %s, startDate: %s, endDate: %s\n", userID, startDate.Format("2006-01-02"), endDate.Format("2006-01-02"))
 	var totalIncome, totalExpenses float64
-	err := r.db.QueryRow(query, userID, startDate.Format("2006-01-02"), endDate.Format("2006-01-02")).Scan(&totalIncome, &totalExpenses)
+	err := r.db.QueryRow(query, userID, startDate, endDate).Scan(&totalIncome, &totalExpenses)
 	if err != nil {
 		return nil, err
 	}
@@ -50,20 +48,20 @@ func (r *DashboardRepository) GetStats(userID uuid.UUID, startDate, endDate time
 func (r *DashboardRepository) GetExpensesByCategory(userID uuid.UUID, startDate, endDate time.Time) ([]models.CategoryExpense, error) {
 	query := `
 		SELECT 
-			COALESCE(c.name, 'Uncategorized') as category,
+			COALESCE(c.name, 'Sem categoria') as category,
 			SUM(t.amount) as amount,
 			COALESCE(c.color, '#6366f1') as color
 		FROM transactions t
 		LEFT JOIN categories c ON t.category_id = c.id
-		WHERE t.user_id = $1 
+		WHERE t.user_id = $1::uuid 
 			AND t.type = 'expense'
-			AND t.date >= $2 
-			AND t.date <= $3
+			AND t.date >= $2::date
+			AND t.date <= $3::date
 		GROUP BY c.name, c.color
 		ORDER BY amount DESC
 	`
 
-	rows, err := r.db.Query(query, userID, startDate.Format("2006-01-02"), endDate.Format("2006-01-02"))
+	rows, err := r.db.Query(query, userID, startDate, endDate)
 	if err != nil {
 		return nil, err
 	}
@@ -98,8 +96,8 @@ func (r *DashboardRepository) GetMonthlyData(userID uuid.UUID, months int) ([]mo
 			COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) as income,
 			COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) as expenses
 		FROM transactions
-		WHERE user_id = $1 
-			AND date >= DATE_TRUNC('month', CURRENT_DATE) - make_interval(months => $2 - 1)
+		    WHERE user_id = $1::uuid 
+			    AND date >= DATE_TRUNC('month', CURRENT_DATE) - make_interval(months => $2::int - 1)
 		GROUP BY TO_CHAR(date, 'YYYY-MM')
 		ORDER BY month ASC
 	`
@@ -129,14 +127,14 @@ func (r *DashboardRepository) GetDailyData(userID uuid.UUID, startDate, endDate 
 			COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) as income,
 			COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) as expenses
 		FROM transactions
-		WHERE user_id = $1 
-			AND date >= $2 
-			AND date <= $3
+		WHERE user_id = $1::uuid 
+			AND date >= $2::date
+			AND date <= $3::date
 		GROUP BY date, TO_CHAR(date, 'YYYY-MM-DD')
 		ORDER BY date ASC
 	`
 
-	rows, err := r.db.Query(query, userID, startDate.Format("2006-01-02"), endDate.Format("2006-01-02"))
+	rows, err := r.db.Query(query, userID, startDate, endDate)
 	if err != nil {
 		return nil, err
 	}

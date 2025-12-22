@@ -93,10 +93,15 @@ func Load() (*Config, error) {
 func (c *Config) ConnectDB() (*sql.DB, error) {
 	var dsn string
 	if c.Database.URL != "" {
-		dsn = c.Database.URL
-	} else {
+		// Use simple protocol to avoid prepared statement caching issues in the driver
+		if strings.Contains(c.Database.URL, "?") {
+			dsn = c.Database.URL + "&prefer_simple_protocol=true"
+		} else {
+			dsn = c.Database.URL + "?prefer_simple_protocol=true"
+		}
+	} else { 
 		dsn = fmt.Sprintf(
-			"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+			"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s prefer_simple_protocol=true",
 			c.Database.Host,
 			c.Database.Port,
 			c.Database.User,
@@ -115,10 +120,8 @@ func (c *Config) ConnectDB() (*sql.DB, error) {
 		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
 
-	// Set connection pool settings
-	db.SetMaxOpenConns(25)
-	db.SetMaxIdleConns(5)
-
+	db.SetMaxOpenConns(1)
+	db.SetMaxIdleConns(1)
 	log.Println("✓ Database connection established")
 	return db, nil
 }
