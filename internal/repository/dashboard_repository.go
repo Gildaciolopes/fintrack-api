@@ -97,7 +97,7 @@ func (r *DashboardRepository) GetMonthlyData(userID uuid.UUID, months int) ([]mo
 			COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) as expenses
 		FROM transactions
 		WHERE user_id = $1 
-			AND date >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '1 month' * ($2 - 1)
+			AND date >= DATE_TRUNC('month', CURRENT_DATE) - make_interval(months => $2 - 1)
 		GROUP BY TO_CHAR(date, 'YYYY-MM')
 		ORDER BY month ASC
 	`
