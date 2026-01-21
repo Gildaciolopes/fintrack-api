@@ -3,10 +3,10 @@ package main
 import (
 	"log"
 
-	"github.com/Gildaciolopes/fintrack-backend/internal/config"
-	"github.com/Gildaciolopes/fintrack-backend/internal/handler"
-	"github.com/Gildaciolopes/fintrack-backend/internal/middleware"
-	"github.com/Gildaciolopes/fintrack-backend/internal/repository"
+	"github.com/Gildaciolopes/fintrack-api/internal/config"
+	"github.com/Gildaciolopes/fintrack-api/internal/handler"
+	"github.com/Gildaciolopes/fintrack-api/internal/middleware"
+	"github.com/Gildaciolopes/fintrack-api/internal/repository"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )

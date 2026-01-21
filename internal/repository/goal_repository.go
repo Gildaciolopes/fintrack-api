@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Gildaciolopes/fintrack-backend/internal/models"
+	"github.com/Gildaciolopes/fintrack-api/internal/models"
 	"github.com/google/uuid"
 )
 

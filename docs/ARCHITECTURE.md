@@ -113,7 +113,7 @@
 ## 📦 Estrutura de Pastas Detalhada
 
 ```
-backend-go/
+fintrack-api/
 │
 ├── cmd/                          # Entry points da aplicação
 │   └── api/

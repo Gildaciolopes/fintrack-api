@@ -16,7 +16,7 @@ Certifique-se de ter instalado:
 
 ```bash
 # Clone o repositório
-cd backend-go
+cd fintrack-go
 
 # Copie o arquivo de exemplo
 cp .env.example .env
@@ -30,13 +30,11 @@ go mod download
 1. Acesse seu projeto no [Supabase Dashboard](https://app.supabase.com)
 2. Vá em **Settings** → **API**
 3. Copie as seguintes informações:
-
    - **Project URL**
    - **anon/public key**
    - **service_role key**
 
 4. Vá em **Settings** → **Database**
-
    - Copie a **Connection String** (modo direto)
 
 5. Vá em **Settings** → **API** → **JWT Settings**

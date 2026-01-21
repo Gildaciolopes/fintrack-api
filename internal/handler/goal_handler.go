@@ -3,9 +3,9 @@ package handler
 import (
 	"net/http"
 
-	"github.com/Gildaciolopes/fintrack-backend/internal/middleware"
-	"github.com/Gildaciolopes/fintrack-backend/internal/models"
-	"github.com/Gildaciolopes/fintrack-backend/internal/repository"
+	"github.com/Gildaciolopes/fintrack-api/internal/middleware"
+	"github.com/Gildaciolopes/fintrack-api/internal/models"
+	"github.com/Gildaciolopes/fintrack-api/internal/repository"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
