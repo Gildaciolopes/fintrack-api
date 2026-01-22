@@ -23,7 +23,7 @@ API robusta em Go para sistema de gestão financeira pessoal, com autenticação
 ### 1. Clone o repositório
 
 ```bash
-cd backend-go
+cd fintrack-api
 ```
 
 ### 2. Configure as variáveis de ambiente
@@ -224,7 +224,7 @@ make test-coverage
 ## 📁 Estrutura do Projeto
 
 ```
-backend-go/
+fintrack-api/
 ├── cmd/
 │   └── api/
 │       └── main.go              # Entry point da aplicação

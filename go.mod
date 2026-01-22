@@ -1,4 +1,4 @@
-module github.com/Gildaciolopes/fintrack-backend
+module github.com/Gildaciolopes/fintrack-api
 
 go 1.23
 
