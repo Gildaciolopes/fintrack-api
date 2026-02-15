@@ -47,6 +47,7 @@ const VERSION = "1.0.0"
 	r.Use(gin.Recovery())
 	r.Use(middleware.Logger())
 	r.Use(middleware.ErrorHandler())
+	r.Use(middleware.SecurityHeaders())
 
 	// CORS configuration
 	corsConfig := cors.Config{
